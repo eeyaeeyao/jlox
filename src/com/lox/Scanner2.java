@@ -48,8 +48,15 @@ class Scanner2 implements IScanner {
 			case '=': addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL); break;
 			case '>': addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
 			case '<': addToken(match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
+			case '"': string(); break;
 			default:
-				  Lox.error(line, "Invalid character.");
+				  if (isDigit(c)) {
+					  number();
+				  }else if (isAlphaNumeric(c)) {
+					  identifier();
+				  } else {
+					  Lox.error(line, "Invalid character.");
+				  }
 		}
 	}
 
@@ -79,5 +86,51 @@ class Scanner2 implements IScanner {
 	private char peek() {
 		if (isAtEnd()) return '\0';
 		return source.charAt(current);
+	}
+
+	private void string() {
+		while(peek() != '"') {
+			if (peek() == '\n') ++line;
+			advance();
+		}
+
+		if (peek() != '"' && isAtEnd())
+			Lox.error(line, "Unterminated string.");
+
+		advance();
+		String literal = source.substring(start + 1, current - 1);
+		addToken(TokenType.STRING, literal);
+	}
+
+	private boolean isDigit(char c) {
+		return c >= '0' && c <= '9';
+	}
+	
+	private void number() {
+		while (isDigit(peek())) advance();
+
+		if (peek() == '.' && isDigit(peekNext())) {
+			advance();
+
+			while(isDigit(peek)) advance();
+		}
+
+		String value = source.substring(start, current);
+		double value_double = Double.parseDouble(value);
+		addToken(NUMBER, value_double);
+	}
+
+	private boolean isAlpha(char c) {
+		return (c >= 'a' && c <= 'z') ||
+			(c >= 'A' && c <= 'Z') ||
+			c == '_';
+	}
+
+	private boolean isAlphaNumeric(char c) {
+		return isAlpha(c) || isDigit(c);
+	}
+
+	private void identifer() {
+		while (isAlphaNumeric(c))
 	}
 }
