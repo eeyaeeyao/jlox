@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Scanner {
+class Scanner implements IScanner {
 	private final String source;
 	private final List<Token> tokens = new ArrayList<>();
 	private int start = 0;
@@ -37,7 +37,7 @@ class Scanner {
 		this.source = source;
 	}
 
-	List<Token> scanTokens() {
+	public List<Token> scanTokens() {
 		while(!isAtEnd()) {
 			start = current;
 			scanToken();
