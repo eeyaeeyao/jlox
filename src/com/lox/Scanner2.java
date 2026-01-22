@@ -14,6 +14,7 @@ class Scanner2 implements IScanner {
 	// Index of the first unconsumed character in the source string.
 	private int current = 0;
 	private String source;
+	private boolean isBlockComment = false;
 
 	private static final Map<String, TokenType> keywords;
 
@@ -54,6 +55,8 @@ class Scanner2 implements IScanner {
 	}
 
 	private void scanToken() {
+		if (isBlockComment) 
+			Lox.error(line, "Unterminated block comment.");
 		char c = advance();
 		switch (c) {
 			case '(': addToken(TokenType.LEFT_PAREN); break;
@@ -76,15 +79,15 @@ class Scanner2 implements IScanner {
 				  if (match('/')) {
 					  while (peek() != '\n' && !isAtEnd()) advance();
 				  } else if (match('*')) {
-					  boolean isNestedComment =  true;
+					  isBlockComment = true;
 					  while ((peek() != '*') && (peekNext() != '/') && !isAtEnd())
 						  if (advance() == '\n') ++line;
 					  if ((peek() == '*') && (peekNext() == '/')) {
-						  isNestedComment = false;
+						  isBlockComment = false;
 						  advance();
 						  advance();
 					  }
-					  if (isAtEnd() & isNestedComment) {
+					  if (isAtEnd() & isBlockComment) {
 						  Lox.error(line, "Unescaped comment");
 					  }
 				  } else addToken(TokenType.SLASH); break;
