@@ -1,2 +1,5 @@
 var x = 3 + 5;
 var y = 4 + 7;
+/* Some comment *
+
+var x = 5 + 5;
